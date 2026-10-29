@@ -1,0 +1,68 @@
+---
+import { site } from '../config/site';
+
+const links = [
+  { label: 'Email', value: site.email, href: `mailto:${site.email}` },
+  { label: 'GitHub', value: site.links.github.replace(/^https?:\/\/(www\.)?/, ''), href: site.links.github },
+  { label: 'LinkedIn', value: site.links.linkedin.replace(/^https?:\/\/(www\.)?/, ''), href: site.links.linkedin },
+  { label: 'Résumé', value: 'PDF', href: site.links.resume },
+];
+---
+
+<footer class="wrap foot">
+  <ul class="links">
+    {links.map((l, i) => (
+      <li data-fade style={`--i:${i}`}>
+        <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+          <span class="mono faint">{l.label}</span>
+          <span class="val"><span class="u-link">{l.value}</span> <span class="arrow">↗</span></span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <div class="colophon mono faint">
+    <span>© {new Date().getFullYear()} {site.name.first} {site.name.last}</span>
+    <a href="/" class="u-link">← Home</a>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    margin-top: clamp(60px, 8vw, 120px);
+  }
+  .links {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 clamp(12px, 1.6vw, 24px);
+    border-top: 1px solid var(--rule-strong);
+  }
+  .links a {
+    display: grid;
+    gap: 8px;
+    padding: 18px 0 22px;
+  }
+  .val {
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+  .colophon {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 22px 28px;
+    border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 860px) {
+    .links {
+      grid-template-columns: 1fr 1fr;
+    }
+    .links li {
+      border-bottom: 1px solid var(--rule);
+    }
+  }
+  @media (max-width: 480px) {
+    .links {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,80 @@
+<div class="cursor" aria-hidden="true">
+  <div class="cursor-ring"><span class="cursor-label mono"></span></div>
+  <div class="cursor-dot"></div>
+</div>
+
+<style is:global>
+  html.has-cursor,
+  html.has-cursor * {
+    cursor: none !important;
+  }
+  .cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .cursor.is-visible {
+    opacity: 1;
+  }
+  .cursor-dot,
+  .cursor-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .cursor-ring::before {
+    content: '';
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    left: -17px;
+    top: -17px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+    opacity: 0.35;
+    transition:
+      transform 0.45s var(--ease-out),
+      opacity 0.3s,
+      background-color 0.3s;
+  }
+  .cursor.is-hover .cursor-ring::before {
+    transform: scale(1.6);
+    opacity: 0.6;
+  }
+  .cursor.has-label .cursor-ring::before {
+    transform: scale(2.2);
+    opacity: 1;
+    background: var(--fg);
+  }
+  .cursor.is-down .cursor-ring::before {
+    transform: scale(0.8);
+  }
+  .cursor-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    color: var(--bg);
+    font-size: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cursor.has-label .cursor-label {
+    opacity: 1;
+  }
+  .cursor.has-label .cursor-dot {
+    opacity: 0;
+  }
+</style>

@@ -1,0 +1,367 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '../config/site';
+import PhotoStack from './PhotoStack.astro';
+
+// "Builds models that know how *sure* they are." -> segments with one emphasized
+const taglineParts = site.tagline.split(/\*(.+?)\*/);
+const now = (await getCollection('now')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime())[0];
+
+const links = [
+  { label: 'Work', href: '/work/', internal: true, note: 'Projects' },
+  { label: 'GitHub', href: site.links.github, internal: false, note: 'Code' },
+  { label: 'LinkedIn', href: site.links.linkedin, internal: false, note: 'Career' },
+  { label: 'Résumé', href: site.links.resume, internal: false, note: 'PDF' },
+  { label: site.personal.label, href: site.personal.href, internal: true, note: 'Personal' },
+];
+---
+
+<section class="landing" id="top" data-hero>
+  <header class="strip mono" data-fade style="--i:0">
+    <span>{site.eyebrow.join(' · ')}</span>
+    <span class="faint hide-sm">{site.location}</span>
+    <span class="clock"><span class="faint">Local</span> <span data-clock>--:--:--</span></span>
+  </header>
+
+  <main id="main" class="wrap body">
+    <div class="who">
+      <h1 class="name serif" data-reveal>
+        <span class="line-mask"><span style="--i:0">{site.name.first}</span></span>
+        <span class="line-mask"><span style="--i:1"><em>{site.name.last}</em><span class="accent">.</span></span></span>
+      </h1>
+      <div class="about">
+        <p class="tagline serif" data-reveal>
+          <span class="line-mask"><span style="--i:3">
+            {taglineParts.map((part, i) => (i % 2 ? <em class="accent">{part}</em> : part))}
+          </span></span>
+        </p>
+        <p class="blurb muted" data-fade style="--i:5">{site.intro}</p>
+      </div>
+    </div>
+
+    <div class="photos" data-fade style="--i:1">
+      <PhotoStack />
+    </div>
+
+    <nav class="index" aria-label="Elsewhere on this site and off it">
+      <p class="index-head mono faint" data-fade style="--i:2"><span>Index</span><span>{String(links.length).padStart(2, '0')}</span></p>
+      <ol>
+        {links.map((l, i) => (
+          <li data-fade style={`--i:${i + 3}`}>
+            <a
+              class="lk"
+              href={l.href}
+              aria-label={l.label}
+              target={l.internal ? undefined : '_blank'}
+              rel={l.internal ? undefined : 'noopener noreferrer'}
+              data-cursor={l.internal ? 'Open' : 'Visit'}
+            >
+              <span class="lk-n mono">{String(i + 1).padStart(2, '0')}</span>
+              <span class="lk-label serif" aria-hidden="true">
+                {[...l.label].map((ch, ci) => (
+                  <span class="c" style={`--d:${ci}`}><span>{ch}</span><span class="alt">{ch}</span></span>
+                ))}
+              </span>
+              <span class="lk-note mono faint">{l.note}</span>
+              <span class="lk-arrow" aria-hidden="true">{l.internal ? '→' : '↗'}</span>
+              <span class="lk-line" aria-hidden="true"></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <button type="button" class="copy-email mono" data-email={site.email} data-cursor="Copy" data-fade style={`--i:${links.length + 3}`}>
+        <span class="faint">Email</span> <span data-copy-label>{site.email}</span>
+      </button>
+    </nav>
+  </main>
+
+  <footer class="strip mono" data-fade style="--i:6">
+    {now ? (
+      <span class="current">
+        <span class="pip" aria-hidden="true"></span><span class="faint">Currently {now.data.status} —</span> <span>{now.data.title}</span>
+      </span>
+    ) : <span></span>}
+    <span class="faint hide-sm">© {new Date().getFullYear()}</span>
+  </footer>
+</section>
+
+<style>
+  .landing {
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  .strip {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px var(--gutter);
+  }
+  header.strip {
+    border-bottom: 1px solid var(--rule);
+  }
+  footer.strip {
+    border-top: 1px solid var(--rule);
+  }
+  .clock {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 72px);
+    align-items: center;
+    padding-block: clamp(24px, 4vh, 56px);
+  }
+
+  /* ── left: name and about ── */
+  .who {
+    display: grid;
+    align-content: space-between;
+    gap: clamp(32px, 7vh, 96px);
+    height: 100%;
+  }
+  .name {
+    font-size: clamp(56px, 6.4vw, 104px);
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+    margin-left: -0.04em;
+  }
+  .name em {
+    font-style: italic;
+  }
+  .about {
+    display: grid;
+    gap: 18px;
+    max-width: 40ch;
+  }
+  .tagline {
+    font-size: clamp(26px, 2.3vw, 36px);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+  .tagline em {
+    font-style: italic;
+  }
+  .blurb {
+    font-size: 15px;
+  }
+
+  /* ── centre: photos ── */
+  .photos {
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+  }
+
+  /* ── right: link index ── */
+  .index {
+    align-self: end;
+  }
+  .index-head {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+  }
+  .index ol {
+    border-top: 1px solid var(--rule-strong);
+  }
+  .index li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .lk {
+    position: relative;
+    display: grid;
+    grid-template-columns: 34px 1fr auto 28px;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 0 10px;
+  }
+  .lk-n {
+    transition: color 0.3s;
+  }
+  .lk-label {
+    font-size: clamp(34px, 3.3vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  /* Each letter rolls up to its italic twin, one after another. */
+  .c {
+    display: inline-block;
+    position: relative;
+    overflow: visible clip;
+    vertical-align: top;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+  .c > span {
+    display: block;
+    transition: transform 0.55s var(--ease-out);
+    transition-delay: calc(var(--d) * 22ms);
+  }
+  .c > .alt {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    font-style: italic;
+  }
+  .lk:hover .c > span,
+  .lk:focus-visible .c > span {
+    transform: translateY(-100%);
+  }
+  .lk-note {
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity 0.4s,
+      transform 0.5s var(--ease-out);
+  }
+  .lk-arrow {
+    justify-self: end;
+    font-size: 22px;
+    transition:
+      transform 0.5s var(--ease-out),
+      color 0.3s;
+  }
+  .lk-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .lk:hover .lk-n,
+  .lk:focus-visible .lk-n,
+  .lk:hover .lk-arrow,
+  .lk:focus-visible .lk-arrow {
+    color: var(--accent-text);
+  }
+  .lk:hover .lk-note,
+  .lk:focus-visible .lk-note {
+    opacity: 1;
+    transform: none;
+  }
+  .lk:hover .lk-arrow,
+  .lk:focus-visible .lk-arrow {
+    transform: translate(4px, -2px);
+  }
+  .lk:hover .lk-line,
+  .lk:focus-visible .lk-line {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .lk:focus-visible {
+    outline: none;
+  }
+  .copy-email {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    text-align: left;
+    transition: color 0.3s;
+  }
+  .copy-email:hover [data-copy-label] {
+    color: var(--accent-text);
+  }
+  .copy-email.is-copied [data-copy-label] {
+    color: var(--accent-text);
+  }
+
+  .current {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .current > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pip {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .body {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+    .who {
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      height: auto;
+      gap: 24px clamp(24px, 4vw, 72px);
+    }
+    .name {
+      font-size: clamp(56px, 9vw, 104px);
+    }
+    .index {
+      align-self: center;
+    }
+  }
+  @media (max-width: 760px) {
+    .body {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .who {
+      grid-template-columns: 1fr;
+    }
+    .name {
+      font-size: clamp(54px, 16vw, 96px);
+    }
+    .photos {
+      max-width: 340px;
+      padding-inline: 8%;
+    }
+    .hide-sm {
+      display: none;
+    }
+  }
+  @media (max-width: 480px) {
+    header.strip .clock {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copy-email').forEach((btn) => {
+    const label = btn.querySelector<HTMLElement>('[data-copy-label]')!;
+    const original = label.textContent;
+    let timer: number | undefined;
+    btn.addEventListener('click', async () => {
+      const email = btn.dataset.email!;
+      try {
+        await navigator.clipboard.writeText(email);
+        label.textContent = 'Copied to clipboard';
+        btn.classList.add('is-copied');
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          label.textContent = original;
+          btn.classList.remove('is-copied');
+        }, 1800);
+      } catch {
+        location.href = `mailto:${email}`;
+      }
+    });
+  });
+</script>

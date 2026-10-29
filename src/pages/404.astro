@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base title="Not found">
+  <Nav />
+  <main id="main" class="wrap page" data-hero>
+    <p class="mono faint" data-fade style="--i:0"><span class="accent">404</span> — Page not found</p>
+    <h1 class="title serif" data-reveal>
+      <span class="line-mask"><span style="--i:1"><em>Lost</em><span class="accent">.</span></span></span>
+    </h1>
+    <p class="lede muted" data-fade style="--i:2">That page doesn't exist, or it moved.</p>
+    <p data-fade style="--i:3">
+      <a class="home mono" href="/" data-cursor="Home"><span class="u-link">Back to the start</span> <span class="arrow">→</span></a>
+    </p>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .page {
+    display: grid;
+    gap: clamp(24px, 3vw, 40px);
+    padding-block: clamp(60px, 10vw, 160px) 0;
+  }
+  .title {
+    font-size: clamp(96px, 18vw, 280px);
+    line-height: 0.86;
+    letter-spacing: -0.035em;
+    margin-left: -0.04em;
+  }
+  .lede {
+    max-width: 40ch;
+    font-size: 17px;
+  }
+  .home {
+    font-size: 12px;
+  }
+</style>

@@ -1,0 +1,182 @@
+---
+import { site } from '../config/site';
+
+// Resting pose for each card, top card first: offset (% of card size) and rotation.
+// The fan pose spreads them apart on hover.
+const poses = [
+  { x: 0, y: 0, r: -4, fx: 0, fy: -2, fr: 0 },
+  { x: 14, y: -5, r: 7, fx: 30, fy: 3, fr: 8 },
+  { x: -13, y: 6, r: -10, fx: -30, fy: 5, fr: -8 },
+];
+// Caption: the photo's `caption` if set, otherwise its alt text.
+const cards = site.photos
+  .slice(0, poses.length)
+  .map((p, i) => ({ ...p, ...poses[i], n: i + 1, caption: 'caption' in p ? p.caption : p.alt }));
+---
+
+<div class="stack" data-stack aria-label="Photos">
+  {cards.map((c, i) => (
+    <figure
+      class="card"
+      data-card
+      data-pose={JSON.stringify([c.x, c.y, c.r, c.fx, c.fy, c.fr])}
+      data-cursor="Drag"
+      style={`--x:${c.x}%;--y:${c.y}%;--r:${c.r}deg;z-index:${cards.length - i}`}
+    >
+      <div class="frame" data-stack-top={i === 0 ? '' : undefined} data-rot={i === 0 ? c.r : undefined}>
+        <img src={c.src} alt={c.alt} width="800" height="1000" draggable="false" fetchpriority={i === 0 ? 'high' : undefined} />
+      </div>
+      <figcaption class="mono"><span>Fig. {String(c.n).padStart(2, '0')}</span><span class="faint">{c.caption}</span></figcaption>
+    </figure>
+  ))}
+</div>
+
+<style>
+  .stack {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5.3;
+    touch-action: pan-y;
+  }
+  .card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 74%;
+    margin: 0;
+    padding: 8px 8px 0;
+    background: #101217;
+    border: 1px solid var(--rule-strong);
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.8);
+    /* No-JS / pre-JS pose; GSAP takes over transforms once loaded. */
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--r));
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+  }
+  .card.is-dragging {
+    cursor: grabbing;
+  }
+  :global(html.js:not(.intro-done)) .card {
+    opacity: 0;
+  }
+  .frame {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  figcaption {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 2px 10px;
+    font-size: 10px;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { hasFinePointer, onIntroDone, prefersReducedMotion } from '../scripts/intro-state';
+
+  const stack = document.querySelector<HTMLElement>('[data-stack]');
+  if (stack) {
+    const cards = [...stack.querySelectorAll<HTMLElement>('[data-card]')];
+    const poses = cards.map((c) => JSON.parse(c.dataset.pose!) as number[]);
+    const fine = hasFinePointer();
+    const reduced = prefersReducedMotion();
+    let z = cards.length;
+    let fanned = false;
+    let dragging: HTMLElement | null = null;
+
+    const pose = (i: number, fan: boolean) => {
+      const [x, y, r, fx, fy, fr] = poses[i];
+      return fan ? { xPercent: -50 + fx, yPercent: -50 + fy, rotation: fr } : { xPercent: -50 + x, yPercent: -50 + y, rotation: r };
+    };
+
+    // Hand transforms to GSAP: centred via percent, drag offset in px via x/y.
+    cards.forEach((c, i) => gsap.set(c, { left: '50%', top: '50%', x: 0, y: 0, ...pose(i, false) }));
+
+    // Entrance: the other cards slide out from under the top one.
+    onIntroDone(() => {
+      if (reduced) return;
+      const played = document.documentElement.dataset.intro !== 'skip';
+      cards.forEach((c, i) => {
+        if (i === 0) {
+          if (!played) gsap.from(c, { opacity: 0, y: 24, duration: 0.9, ease: 'expo.out' });
+          return;
+        }
+        gsap.from(c, { ...pose(0, false), duration: 1.1, delay: 0.15 + i * 0.08, ease: 'expo.out' });
+      });
+    });
+
+    const fan = (on: boolean) => {
+      if (fanned === on || reduced) return;
+      fanned = on;
+      cards.forEach((c, i) => gsap.to(c, { ...pose(i, on), duration: 0.8, ease: 'expo.out', overwrite: 'auto' }));
+    };
+
+    if (fine) {
+      stack.addEventListener('pointerenter', () => fan(true));
+      stack.addEventListener('pointerleave', () => !dragging && fan(false));
+
+      // Drag any card anywhere; it stays where it's dropped.
+      cards.forEach((card) => {
+        const xTo = gsap.quickTo(card, 'x', { duration: 0.35, ease: 'power3.out' });
+        const yTo = gsap.quickTo(card, 'y', { duration: 0.35, ease: 'power3.out' });
+        let sx = 0, sy = 0, ox = 0, oy = 0;
+        card.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          dragging = card;
+          card.setPointerCapture(e.pointerId);
+          card.classList.add('is-dragging');
+          card.style.zIndex = String(++z);
+          sx = e.clientX;
+          sy = e.clientY;
+          ox = Number(gsap.getProperty(card, 'x'));
+          oy = Number(gsap.getProperty(card, 'y'));
+          gsap.to(card, { scale: 1.04, duration: 0.3, ease: 'power3.out' });
+        });
+        card.addEventListener('pointermove', (e) => {
+          if (dragging !== card) return;
+          xTo(ox + e.clientX - sx);
+          yTo(oy + e.clientY - sy);
+        });
+        const end = () => {
+          if (dragging !== card) return;
+          dragging = null;
+          card.classList.remove('is-dragging');
+          gsap.to(card, { scale: 1, duration: 0.5, ease: 'expo.out' });
+        };
+        card.addEventListener('pointerup', end);
+        card.addEventListener('pointercancel', end);
+      });
+
+      // Double-click tidies the stack back up.
+      stack.addEventListener('dblclick', () => {
+        z = cards.length;
+        cards.forEach((c, i) => {
+          c.style.zIndex = String(cards.length - i);
+          gsap.to(c, { x: 0, y: 0, duration: 0.9, ease: 'expo.out' });
+        });
+      });
+    } else {
+      // Touch: tap sends the front card to the back.
+      const order = cards.map((_, i) => i); // order[0] is the front card
+      stack.addEventListener('click', () => {
+        const front = order.shift()!;
+        order.push(front);
+        const card = cards[front];
+        const [x, , r] = poses[front];
+        gsap
+          .timeline()
+          .to(card, { xPercent: -50 + x + 70, rotation: r + 12, duration: 0.35, ease: 'power2.in' })
+          .call(() => order.forEach((ci, pos) => (cards[ci].style.zIndex = String(cards.length - pos))))
+          .to(card, { xPercent: -50 + x, rotation: r, duration: 0.6, ease: 'expo.out' });
+      });
+    }
+  }
+</script>

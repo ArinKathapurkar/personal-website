@@ -1,0 +1,71 @@
+<!-- Site-wide particle field (tsParticles, the maintained successor to particles.js).
+     Sparse drifting points joined by faint lines; near the cursor they reach for it in blue. -->
+<div id="particles" class="particles" aria-hidden="true"></div>
+
+<style>
+  .particles {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.6s var(--ease-out);
+  }
+  .particles.is-on {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import { onIntroDone, prefersReducedMotion } from '../scripts/intro-state';
+
+  const host = document.getElementById('particles');
+
+  // Start after the intro so it never competes with the loading animation,
+  // and load the library lazily so it stays off the critical path.
+  if (host) {
+    onIntroDone(async () => {
+      const [{ tsParticles }, { loadBasic }, { loadInteractivityPlugin }, { loadParticlesLinksInteraction }, { loadExternalGrabInteraction }] =
+        await Promise.all([
+          import('@tsparticles/engine'),
+          import('@tsparticles/basic'),
+          import('@tsparticles/plugin-interactivity'),
+          import('@tsparticles/interaction-particles-links'),
+          import('@tsparticles/interaction-external-grab'),
+        ]);
+      await loadBasic(tsParticles);
+      await loadInteractivityPlugin(tsParticles);
+      await Promise.all([loadParticlesLinksInteraction(tsParticles), loadExternalGrabInteraction(tsParticles)]);
+
+      const css = getComputedStyle(document.documentElement);
+      const white = css.getPropertyValue('--white').trim() || '#f3f5f8';
+      const blue = css.getPropertyValue('--blue').trim() || '#4f8cff';
+      const still = prefersReducedMotion();
+
+      await tsParticles.load({
+        id: 'particles',
+        element: host,
+        options: {
+          fullScreen: { enable: false },
+          background: { color: 'transparent' },
+          fpsLimit: 60,
+          detectRetina: true,
+          particles: {
+            number: { value: 70, density: { enable: true, width: 1440, height: 900 } },
+            color: { value: [white, white, white, blue] },
+            opacity: { value: { min: 0.15, max: 0.5 } },
+            size: { value: { min: 0.8, max: 1.8 } },
+            links: { enable: true, distance: 150, color: white, opacity: 0.07, width: 1 },
+            move: { enable: !still, speed: 0.35, direction: 'none', random: true, straight: false, outModes: { default: 'out' } },
+          },
+          interactivity: {
+            detectsOn: 'window',
+            events: { onHover: { enable: !still, mode: 'grab' }, resize: { enable: true } },
+            modes: { grab: { distance: 190, links: { opacity: 0.45, color: blue } } },
+          },
+        },
+      });
+      host.classList.add('is-on');
+    });
+  }
+</script>

@@ -1,0 +1,283 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: projects[(i + 1) % projects.length], total: projects.length },
+  }));
+}
+
+const { entry, next, total } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const pad = (n: number) => String(n).padStart(2, '0');
+// Unfilled metrics stay in the markdown as TODO; show them as an em dash.
+const show = (v: string) => (v.trim().toUpperCase() === 'TODO' ? '—' : v);
+---
+
+<Base title={d.title} description={d.summary}>
+  <Nav />
+  <main id="main" class="wrap">
+    <a class="back mono" href="/work/"><span class="arrow-l">←</span> <span class="u-link">All work</span></a>
+
+    <header class="head grid" data-hero>
+      <p class="kicker mono" data-fade style="--i:0">
+        <span class="accent-num">Project {pad(d.order)}</span> <span class="faint">/ {pad(total)} — {d.year}</span>
+      </p>
+      <h1 class="title serif" data-reveal>
+        <span class="line-mask"><span style="--i:0">{d.title}</span></span>
+      </h1>
+      <p class="summary serif" data-fade style="--i:2">{d.summary}</p>
+
+      <dl class="meta" data-fade style="--i:3">
+        {d.role && (
+          <div><dt class="mono faint">Role</dt><dd>{d.role}</dd></div>
+        )}
+        <div><dt class="mono faint">Stack</dt><dd>{d.stack.join(', ')}</dd></div>
+        <div><dt class="mono faint">Year</dt><dd>{d.year}</dd></div>
+        {d.links.length > 0 && (
+          <div>
+            <dt class="mono faint">Links</dt>
+            <dd class="link-list">
+              {d.links.map((l) => (
+                <a href={l.href} target="_blank" rel="noopener noreferrer"><span class="u-link">{l.label}</span> <span class="arrow">↗</span></a>
+              ))}
+            </dd>
+          </div>
+        )}
+      </dl>
+    </header>
+
+    {d.metrics.length > 0 && (
+      <ul class="metrics" data-fade>
+        {d.metrics.map((m) => (
+          <li>
+            <span class="value serif">{show(m.value)}</span>
+            <span class="mono faint">{m.label}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {d.image && (
+      <figure class="figure" data-fade>
+        <img src={d.image} alt={d.imageAlt ?? ''} width="800" height="600" />
+      </figure>
+    )}
+
+    <article class="prose" data-fade>
+      <Content />
+    </article>
+
+    <a class="next" href={`/work/${next.id}/`} data-cursor="Next">
+      <span class="mono faint">Next project — [{pad(next.data.order)}]</span>
+      <span class="next-title serif">{next.data.title} <span class="arrow">→</span></span>
+    </a>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .back {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: clamp(24px, 4vw, 48px);
+  }
+  .back:hover .arrow-l {
+    transform: translateX(-3px);
+  }
+  .arrow-l {
+    display: inline-block;
+    transition: transform 0.4s var(--ease-out);
+  }
+  .head {
+    padding-block: clamp(40px, 7vw, 100px) clamp(32px, 5vw, 64px);
+    row-gap: 28px;
+  }
+  .kicker {
+    grid-column: 1 / -1;
+  }
+  .accent-num {
+    color: var(--accent-text);
+  }
+  .title {
+    grid-column: 1 / -1;
+    font-size: clamp(56px, 10vw, 168px);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    margin-left: -0.04em;
+  }
+  .summary {
+    grid-column: 1 / 8;
+    font-size: clamp(24px, 2.6vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .meta {
+    grid-column: 9 / 13;
+    margin: 0;
+    display: grid;
+    gap: 16px;
+    align-self: end;
+  }
+  .meta div {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+    font-size: 14px;
+  }
+  .meta dd {
+    margin: 0;
+  }
+  .link-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    border-block: 1px solid var(--rule-strong);
+  }
+  .metrics li {
+    display: grid;
+    gap: 6px;
+    padding: 22px 20px 22px 0;
+  }
+  .metrics li + li {
+    padding-left: 20px;
+    border-left: 1px solid var(--rule);
+  }
+  .value {
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .figure {
+    max-width: 960px;
+    margin: clamp(40px, 6vw, 80px) 0 0;
+    border: 1px solid var(--rule-strong);
+  }
+  .figure img {
+    width: 100%;
+    height: auto;
+  }
+
+  .prose {
+    max-width: 68ch;
+    margin: clamp(48px, 7vw, 100px) 0 0 auto;
+    margin-right: clamp(0px, 8vw, 120px);
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .prose :global(h2) {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+    padding-top: 14px;
+    margin: 56px 0 18px;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 1em;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 0;
+  }
+  .prose :global(li) {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 0.6em;
+  }
+  .prose :global(ul > li)::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--fg-3);
+  }
+  .prose :global(ol) {
+    counter-reset: step;
+  }
+  .prose :global(ol > li) {
+    counter-increment: step;
+  }
+  .prose :global(ol > li)::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.3em;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--fg-3);
+  }
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+  .prose :global(em) {
+    font-family: var(--serif);
+    font-size: 1.12em;
+  }
+  .prose :global(code) {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    padding: 1px 5px;
+    border: 1px solid var(--rule);
+  }
+
+  .next {
+    display: grid;
+    gap: 10px;
+    margin-top: clamp(80px, 10vw, 160px);
+    padding-block: 28px 0;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .next-title {
+    font-size: clamp(44px, 7vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .next:hover .next-title {
+    transform: translateX(clamp(8px, 1.4vw, 20px));
+    font-style: italic;
+  }
+  .next:hover .arrow {
+    transform: translateX(6px);
+  }
+
+  @media (max-width: 860px) {
+    .summary,
+    .meta {
+      grid-column: 1 / -1;
+    }
+    .metrics li + li {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .metrics li {
+      border-bottom: 1px solid var(--rule);
+    }
+    .prose {
+      margin-inline: 0;
+    }
+  }
+</style>

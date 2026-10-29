@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+<rect width="800" height="600" fill="#11141a"/>
+<text x="40" y="52" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="15" letter-spacing="2" fill="rgba(243,245,248,0.35)">FIG. A — RELIABILITY</text>
+<text x="760" y="52" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="15" letter-spacing="2" fill="rgba(243,245,248,0.35)" text-anchor="end">HELD-OUT GAMES · 10 BINS</text>
+<line x1="150" y1="540" x2="150" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<line x1="150" y1="540" x2="570" y2="540" stroke="rgba(243,245,248,0.12)"/>
+<text x="150" y="564" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="middle">0.00</text>
+<text x="136" y="544" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="end">0.00</text>
+<line x1="255.0" y1="540" x2="255.0" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<line x1="150" y1="435.0" x2="570" y2="435.0" stroke="rgba(243,245,248,0.12)"/>
+<text x="255.0" y="564" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="middle">0.25</text>
+<text x="136" y="439.0" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="end">0.25</text>
+<line x1="360.0" y1="540" x2="360.0" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<line x1="150" y1="330.0" x2="570" y2="330.0" stroke="rgba(243,245,248,0.12)"/>
+<text x="360.0" y="564" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="middle">0.50</text>
+<text x="136" y="334.0" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="end">0.50</text>
+<line x1="465.0" y1="540" x2="465.0" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<line x1="150" y1="225.0" x2="570" y2="225.0" stroke="rgba(243,245,248,0.12)"/>
+<text x="465.0" y="564" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="middle">0.75</text>
+<text x="136" y="229.0" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="end">0.75</text>
+<line x1="570" y1="540" x2="570" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<line x1="150" y1="120" x2="570" y2="120" stroke="rgba(243,245,248,0.12)"/>
+<text x="570" y="564" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="middle">1.00</text>
+<text x="136" y="124" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="rgba(243,245,248,0.35)" text-anchor="end">1.00</text>
+<line x1="150" y1="540" x2="570" y2="120" stroke="#f3f5f8" stroke-opacity=".55" stroke-dasharray="4 6"/>
+<polyline fill="none" stroke="#4f8cff" stroke-width="2.5" points="171.0,525.3 213.0,477.0 255.0,443.4 297.0,401.4 339.0,353.1 381.0,306.9 423.0,275.4 465.0,225.0 507.0,183.0 549.0,128.4"/>
+<circle cx="171.0" cy="525.3" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="213.0" cy="477.0" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="255.0" cy="443.4" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="297.0" cy="401.4" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="339.0" cy="353.1" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="381.0" cy="306.9" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="423.0" cy="275.4" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="465.0" cy="225.0" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="507.0" cy="183.0" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<circle cx="549.0" cy="128.4" r="5" fill="#11141a" stroke="#4f8cff" stroke-width="2"/>
+<text x="360.0" y="590" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" letter-spacing="2" fill="rgba(243,245,248,0.35)" text-anchor="middle">PREDICTED P(HOME WIN)</text>
+<text x="88" y="330.0" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" letter-spacing="2" fill="rgba(243,245,248,0.35)" text-anchor="middle" transform="rotate(-90 88 330.0)">OBSERVED WIN RATE</text>
+<text x="588" y="124" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="12" fill="#f3f5f8" fill-opacity=".55">y = x</text>
+</svg>
